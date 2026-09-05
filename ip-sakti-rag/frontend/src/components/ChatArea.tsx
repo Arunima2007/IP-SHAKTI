@@ -238,7 +238,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                             if (paragraph.startsWith('###')) {
                               const heading = paragraph.replace(/^###\s*/, '');
                               return (
-                                <h4 key={pIdx} className="text-xs font-bold uppercase tracking-wider text-slate-500 pt-2 border-t border-slate-100">
+                                <h4 key={pIdx} className="text-xs font-bold text-slate-700 pt-2 border-t border-slate-100 tracking-tight">
                                   {heading}
                                 </h4>
                               );

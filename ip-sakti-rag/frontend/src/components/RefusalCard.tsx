@@ -7,7 +7,11 @@ interface RefusalCardProps {
 }
 
 export const RefusalCard: React.FC<RefusalCardProps> = ({ answer, queryType }) => {
-  const isOutOfScope = queryType === 'OUT_OF_SCOPE' || answer.includes('Scope Notice');
+  const isOutOfScope =
+    queryType === 'OUT_OF_SCOPE' ||
+    answer.includes('outside the scope') ||
+    answer.includes('outside my supported domain') ||
+    answer.includes('Scope Notice');
 
   return (
     <div className="rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50/40 p-4 shadow-sm space-y-3 my-2">
@@ -21,7 +25,7 @@ export const RefusalCard: React.FC<RefusalCardProps> = ({ answer, queryType }) =
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-amber-950 tracking-tight">
               {isOutOfScope ? 'Out-of-Scope Domain Boundary Notice' : 'Evidence Sufficiency Safeguard'}
             </h4>
             <span className="text-[10px] font-semibold px-2 py-0.2 rounded-full bg-amber-200/80 text-amber-900 border border-amber-300">

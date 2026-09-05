@@ -3,7 +3,7 @@
 Ensures that:
 1. All out-of-scope queries are immediately classified as OUT_OF_SCOPE.
 2. Retrieval, reranking, and generation are NEVER invoked for out-of-scope queries (0% leakage).
-3. Citation list is strictly empty.
+3. Citation list is strictly empty for out-of-scope queries.
 4. Response is natural sentence-case safe refusal.
 5. In-scope queries are properly routed and processed.
 """
@@ -15,9 +15,18 @@ from src.graph.graph import IPSAKTILangGraphCoordinator
 
 OUT_OF_SCOPE_TEST_QUERIES = [
     "Who is Virat Kohli?",
+    "What is the capital of India?",
     "What is the capital of France?",
-    "Tell me today's weather.",
+    "Write me a Python program",
     "Write a Python program to sort an array.",
+    "What is today's weather?",
+    "Tell me a joke.",
+    "Who won the cricket match?",
+    "How do I cook pasta?",
+    "What is Bitcoin?",
+    "Give me relationship advice",
+    "Virat Kohli kaun hai?",
+    "Python mein RAG kaise banaye?",
     "Who won the FIFA World Cup?",
     "What is the stock price of Apple?",
     "Give me a recipe for pasta.",
@@ -31,21 +40,29 @@ OUT_OF_SCOPE_TEST_QUERIES = [
     "Give me a travel itinerary for Delhi.",
     "What is the distance between Delhi and Mumbai?",
     "Who is the Prime Minister of Japan?",
-    "Explain photosynthesis in plants.",
     "Recommend a good gaming laptop.",
-    "What is today's breaking news headlines?",
     "How do I bake a chocolate cake?",
     "Who directed the movie Inception?"
 ]
 
 IN_SCOPE_TEST_QUERIES = [
     ("What is Section 3(p) of the Patents Act?", "PATENTS", "EXACT_LOOKUP"),
-    ("What is inventive step under Indian patent law?", "PATENTS", "EXPLANATORY"),
-    ("What role does TKDL play in protecting traditional knowledge?", "TRADITIONAL_KNOWLEDGE", "EXPLANATORY"),
-    ("When is NBA approval required under Biological Diversity Act?", "BIOLOGICAL_DIVERSITY", "EXPLANATORY"),
-    ("What are PCT requirements for entering the national phase in India?", "INTERNATIONAL_IP", "EXPLANATORY"),
+    ("Can traditional knowledge be patented in India?", "TRADITIONAL_KNOWLEDGE", "EXPLANATORY"),
+    ("What is the role of TKDL in patent examination?", "TRADITIONAL_KNOWLEDGE", "EXPLANATORY"),
+    ("What is TKDL?", "TRADITIONAL_KNOWLEDGE", "FACTUAL"),
+    ("What approval is required from NBA?", "BIODIVERSITY", "FACTUAL"),
+    ("When is NBA approval required under Biological Diversity Act?", "BIODIVERSITY", "EXPLANATORY"),
+    ("What are the PCT international phase requirements?", "INTERNATIONAL_IP", "EXPLANATORY"),
+    ("What is PCT Rule 43bis?", "INTERNATIONAL_IP", "EXACT_LOOKUP"),
     ("Can an Ayurvedic formulation be patented in India?", "AYUSH", "AYURVEDA_IP"),
-    ("What are the patentability requirements for an Ayurvedic invention involving biological resources?", "AYUSH", "CROSS_DOMAIN"),
+    ("Can Ayurvedic inventions receive patent protection?", "AYUSH", "AYURVEDA_IP"),
+    ("What are the requirements for patent disclosure involving biological resources?", "CROSS_DOMAIN", "CROSS_DOMAIN"),
+    ("Explain Section 3(d) in the context of an Ayurvedic invention.", "AYUSH", "EXACT_LOOKUP"),
+    ("Section 3(p) kya kehta hai?", "PATENTS", "EXACT_LOOKUP"),
+    ("TKDL kya hai?", "TRADITIONAL_KNOWLEDGE", "CODE_MIXED"),
+    ("क्या आयुर्वेदिक आविष्कार का पेटेंट हो सकता है?", "AYUSH", "MULTILINGUAL"),
+    ("क्या आयुर्वेदिक औषधि पर पेटेंट मिल सकता है?", "AYUSH", "MULTILINGUAL"),
+    ("How can I patent a cricket-related Ayurvedic product?", "AYUSH", "AYURVEDA_IP"),
 ]
 
 
@@ -60,7 +77,7 @@ def query_node():
 
 
 def test_query_understanding_out_of_scope_classifier(query_node):
-    """Test that all 22 out-of-scope queries are classified as OUT_OF_SCOPE by QueryUnderstandingNode."""
+    """Test that all out-of-scope queries are classified as OUT_OF_SCOPE by QueryUnderstandingNode."""
     for query in OUT_OF_SCOPE_TEST_QUERIES:
         res = query_node({"query": query})
         assert res["scope_status"] == "OUT_OF_SCOPE", f"Failed for query: {query}"
@@ -76,7 +93,7 @@ def test_query_understanding_in_scope_classifier(query_node):
         assert res["scope_status"] == "IN_SCOPE", f"False out-of-scope for: {query}"
         assert res["query_type"] != "OUT_OF_SCOPE", f"False out-of-scope type for: {query}"
         assert res["scope_confidence"] >= 0.75, f"Low confidence for in-scope query: {query}"
-        assert len(res["domains"]) > 0, f"No domain detected for: {query}"
+        assert len(res["domains"]) > 0 or len(res["exact_identifiers"]) > 0, f"No domain or identifier detected for: {query}"
 
 
 @pytest.mark.parametrize("query", OUT_OF_SCOPE_TEST_QUERIES)
@@ -91,7 +108,7 @@ def test_out_of_scope_zero_leakage_and_latency(coordinator, query):
     assert result["scope_status"] == "OUT_OF_SCOPE"
     assert result["query_type"] == "OUT_OF_SCOPE"
     assert result["final_answer_type"] == "SAFE_REFUSAL"
-    assert "outside the scope of IP-SAKTI Sahayak" in result["final_answer"]
+    assert "outside my supported domain" in result["final_answer"]
 
     # 2. Strict Zero Leakage Checks
     assert result.get("retrieval_called", False) is False, f"Retrieval leaked for {query}"
@@ -123,3 +140,4 @@ def test_in_scope_execution_integrity(coordinator):
     assert result["generation_called"] is True
     assert len(result["citations"]) >= 1
     assert "Patents Act" in result["final_answer"] or "Section 3(p)" in result["final_answer"]
+

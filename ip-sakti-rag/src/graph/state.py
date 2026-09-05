@@ -24,6 +24,9 @@ class GraphState(TypedDict, total=False):
     domains: List[str]             # List of recognized domains
     exact_identifiers: List[str]   # Specific statutory sections, rules, articles, or patent numbers
     metadata_filters: Optional[Dict[str, Any]]
+    parsed_identifier: Dict[str, Any]
+    identified_document: Optional[str]
+    identified_provision: Optional[str]
 
     # 2. Retrieval & Reranking
     retrieval_performed: bool
@@ -37,6 +40,7 @@ class GraphState(TypedDict, total=False):
     evidence_map: Dict[str, Dict[str, Any]]
     detected_conflicts: List[Dict[str, Any]]
     retrieval_attempt: int
+    retrieval_diagnostics: Dict[str, Any]
 
     # 3. Evidence Sufficiency Decision
     evidence_sufficient: bool

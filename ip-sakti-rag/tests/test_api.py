@@ -64,7 +64,7 @@ def test_chat_out_of_scope_query(client):
     assert response.status_code == 200
     data = response.json()
     assert data["is_refusal"] is True
-    assert "outside the scope of IP-SAKTI Sahayak" in data["answer"]
+    assert "outside my supported domain" in data["answer"]
     assert data["query_type"] == "OUT_OF_SCOPE"
 
 

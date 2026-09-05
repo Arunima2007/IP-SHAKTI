@@ -191,3 +191,16 @@ The Act states that quantum computers must be registered with the NASA space cen
     assert result["metrics"]["unsupported_claim_rate"] > 0.50
     # Remediation should have sanitized or refused
     assert (result["sanitized_answer"] == INSUFFICIENT_EVIDENCE_MESSAGE) or (result["is_valid"] is False)
+
+
+def test_citation_validator_rejects_wrong_cited_provision(sample_chunks):
+    validator = ClaimCitationValidator()
+    wrong_evidence = dict(sample_chunks[0])
+    wrong_evidence["section"] = "4"
+    result = validator.validate_answer(
+        "Section 3(p) excludes traditional knowledge. [1]",
+        {"E1": wrong_evidence},
+        [{"citation_id": "C1", "citation_number": 1, "evidence_id": "E1"}],
+    )
+    assert result["is_valid"] is False
+    assert any(issue["type"] == "citation_mismatch" for issue in result["flagged_issues"])

@@ -288,25 +288,18 @@ class BM25SearchEngine:
             if filters:
                 match = True
                 for f_key, f_val in filters.items():
-                    if f_key == "jurisdiction" and meta.get("jurisdiction") != f_val:
-                        match = False
-                        break
-                    elif f_key == "category" and meta.get("category") != f_val:
-                        match = False
-                        break
-                    elif f_key == "document_type" and meta.get("document_type") != f_val:
-                        match = False
-                        break
-                    elif f_key == "document_id" and meta.get("document_id") != f_val:
-                        match = False
-                        break
-                    elif f_key == "domain":
-                        chunk_domains = meta.get("domain", [])
+                    meta_val = meta.get(f_key)
+                    if isinstance(meta_val, list):
                         if isinstance(f_val, list):
-                            if not any(d in chunk_domains for d in f_val):
+                            if not any(item in meta_val for item in f_val):
                                 match = False
                                 break
-                        elif f_val not in chunk_domains:
+                        else:
+                            if f_val not in meta_val:
+                                match = False
+                                break
+                    else:
+                        if meta_val != f_val:
                             match = False
                             break
                 if not match:

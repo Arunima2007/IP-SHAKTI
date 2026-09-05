@@ -18,6 +18,8 @@ from src.config import (
     GENERATION_TOP_P,
     INSUFFICIENT_EVIDENCE_MESSAGE
 )
+from src.generation.citation_engine import CitationEngine
+from src.retrieval.legal_identifier_parser import parse as parse_legal_identifier, provision_matches, document_matches
 
 logger = logging.getLogger(__name__)
 
@@ -36,51 +38,60 @@ STRICT GROUNDING RULES (MANDATORY):
 
 STYLE & FORMATTING RULES:
 - Write in natural sentence case.
-- Do NOT write the answer in ALL CAPS.
-- Use concise, well-structured paragraphs.
-- Preserve the exact capitalization of legal document titles, statute names, section numbers, rules, and proper nouns (e.g., "Patents Act, 1970", "Section 3(p)", "Ayurveda Aahara Regulations 2022", "National Biodiversity Authority").
+- Do NOT write the answer or headings in ALL CAPS.
+- Use concise, professional legal-assistant formatting.
+- Preserve standard legal naming (e.g., "Patents Act, 1970", "Section 3(p)", "Ayurveda Aahara Regulations, 2022", "National Biodiversity Authority").
 - Follow the required markdown section format strictly:
 
-### Short answer
+### Answer
 [A clear, direct answer in normal sentence case, citing relevant evidence tags like [E1].]
 
 ### Explanation
 [Detailed legal/regulatory explanation grounded strictly in the cited evidence. Every substantive sentence must cite evidence tags like [E1], [E2].]
 
 ### Applicable provisions
-- Section X — [concise explanation of how it applies] [E1]
-- Rule Y — [concise explanation of how it applies] [E2]
+- [Statute Name], [Section/Rule/Article] — [concise explanation of how it applies] [E1]
 
 ### Sources
 [Leave this for citation post-processing, or list [E1], [E2] tags.]
 """
 
 
+def clean_legal_document_title(doc_filename: str) -> str:
+    """Formats raw document filenames into professional legal titles."""
+    return CitationEngine()._format_doc_title(doc_filename)
+
+
 def normalize_sentence_case(text: str) -> str:
-    """Converts ALL-CAPS text blocks or headers into clean natural sentence case."""
+    """Converts ALL-CAPS text blocks or headers into clean natural sentence case while preserving legal terms."""
     if not text:
         return ""
     
-    # If string is mostly uppercase (e.g. headers from official PDFs)
+    # Replace underscore artifacts
+    text = text.replace("_", " ")
+
+    # If string is heavily uppercase
     letters = [c for c in text if c.isalpha()]
-    if letters and (sum(1 for c in letters if c.isupper()) / len(letters)) > 0.70:
-        # Lowercase everything except first character and legal acronyms
+    if letters and (sum(1 for c in letters if c.isupper()) / len(letters)) > 0.50:
         words = text.split()
         cleaned_words = []
         for w in words:
             # Preserve recognized legal abbreviations/acronyms
-            if w.upper() in {"IPR", "PCT", "WIPO", "EPO", "NBA", "SBB", "BMC", "TKDL", "TK", "ASU", "AYUSH", "FSSAI", "GMP", "TRIPS", "WTO"}:
+            clean_w = w.strip(".,;:()[]{}")
+            if clean_w.upper() in {"IPR", "PCT", "WIPO", "EPO", "NBA", "SBB", "BMC", "TKDL", "TK", "ASU", "AYUSH", "FSSAI", "GMP", "TRIPS", "WTO", "USA", "UK", "EU", "GR", "TCE"}:
                 cleaned_words.append(w.upper())
-            elif re.match(r'^(?:[0-9]+[A-Z]*|[A-Z])$', w):
+            elif re.match(r'^(?:[0-9]+[a-zA-Z]*|[a-zA-Z])$', w):
                 cleaned_words.append(w)
+            elif clean_w.lower() in {"act", "section", "article", "rule", "patent", "patents", "order", "schedule"}:
+                cleaned_words.append(w.capitalize())
             else:
                 cleaned_words.append(w.lower())
         
         reconstructed = " ".join(cleaned_words)
         # Capitalize first letter of sentences
-        return re.sub(r'(^[a-z]|(?<=[.!?]\s)[a-z])', lambda m: m.group(1).upper(), reconstructed)
+        text = re.sub(r'(^[a-z]|(?<=[.!?]\s)[a-z])', lambda m: m.group(1).upper(), reconstructed)
     
-    return text
+    return text.strip()
 
 
 class AnswerGenerator:
@@ -146,6 +157,18 @@ class AnswerGenerator:
                 "tokens": 0
             }
 
+        parsed = parse_legal_identifier(query)
+        if parsed.get("type") and not any(
+            provision_matches(evidence, parsed)
+            and document_matches(evidence, parsed.get("canonical_title") or parsed.get("document_hint"))
+            for evidence in evidence_map.values()
+        ):
+            return INSUFFICIENT_EVIDENCE_MESSAGE, {
+                "model": "rule_based_exact_provision_refusal",
+                "latency_sec": round(time.perf_counter() - start_time, 4),
+                "status": "refused_missing_exact_provision", "tokens": 0,
+            }
+
         user_content = self._construct_user_prompt(query, formatted_evidence, detected_conflicts)
 
         # 1. Live Gemini Generation (if client available)
@@ -195,7 +218,8 @@ class AnswerGenerator:
             "- Base your response ONLY on the authoritative evidence above.",
             "- Use [E1], [E2], etc. to cite evidence for every substantive claim.",
             "- Write in natural sentence case. Do NOT write in ALL CAPS.",
-            "- Follow the required markdown section format strictly (### Short answer, ### Explanation, ### Applicable provisions, ### Sources).",
+            "- Follow the required markdown section format strictly (### Answer, ### Explanation, ### Applicable provisions, ### Sources).",
+            "- For an exact legal identifier, use only evidence with that same provision and document. Never substitute a neighbouring provision.",
             "- If the provided chunks do not contain enough information to answer the query, respond ONLY with:",
             f'  "{INSUFFICIENT_EVIDENCE_MESSAGE}"'
         ]
@@ -249,7 +273,8 @@ class AnswerGenerator:
         e1 = evidence_map.get("E1", {})
         e2 = evidence_map.get("E2", {})
         
-        doc1 = e1.get("document", "the relevant authoritative document")
+        raw_doc1 = e1.get("document", "the relevant authoritative document")
+        doc1 = clean_legal_document_title(raw_doc1)
         sec1 = e1.get("section")
         art1 = e1.get("article")
         rule1 = e1.get("rule")
@@ -269,22 +294,23 @@ class AnswerGenerator:
         primary_sentence = normalize_sentence_case(raw_sentence)
 
         answer_lines = [
-            "### Short answer",
-            f"Under the provisions of {doc1}" + (f" ({prov_label1})" if prov_label1 else "") + f", {primary_sentence.strip()} [E1]"
+            "### Answer",
+            f"Based on {doc1}" + (f" ({prov_label1})" if prov_label1 else "") + f", {primary_sentence.strip()} [E1]."
         ]
 
         exp_lines = [
             "\n### Explanation",
-            f"According to authoritative documentation in {doc1}" + (f" ({prov_label1})" if prov_label1 else "") + f", {primary_sentence} [E1]"
+            f"As stated in {doc1}" + (f" ({prov_label1})" if prov_label1 else "") + f", {primary_sentence} [E1]"
         ]
         
         if len(sentences1) > 1:
             sec_raw = sentences1[1] if len(sentences1[1]) < 250 else sentences1[1][:240] + "..."
             sec_sentence = normalize_sentence_case(sec_raw)
-            exp_lines.append(f"Furthermore, {sec_sentence} [E1]")
+            exp_lines.append(f"Specifically, {sec_sentence} [E1]")
         
-        if e2:
-            doc2 = e2.get("document", "")
+        if e2 := evidence_map.get("E2"):
+            raw_doc2 = e2.get("document", "")
+            doc2 = clean_legal_document_title(raw_doc2)
             sec2 = e2.get("section")
             art2 = e2.get("article")
             rule2 = e2.get("rule")
@@ -295,17 +321,17 @@ class AnswerGenerator:
             sentences2 = [s.strip() for s in re.split(r'(?<=[.!?])\s+', clean_text2) if len(s.strip()) > 20 and not s.strip().startswith("(")]
             if sentences2:
                 norm_sentence2 = normalize_sentence_case(sentences2[0])
-                exp_lines.append(f"In addition, under {doc2}" + (f" ({prov_label2})" if prov_label2 else "") + f", {norm_sentence2} [E2]")
+                exp_lines.append(f"Additionally, under {doc2}" + (f" ({prov_label2})" if prov_label2 else "") + f", {norm_sentence2} [E2]")
 
         prov_lines = ["\n### Applicable provisions"]
         for eid, e in evidence_map.items():
-            doc = e.get("document", "")
+            doc = clean_legal_document_title(e.get("document", ""))
             s = e.get("section")
             a = e.get("article")
             r = e.get("rule")
             h = e.get("heading")
-            tag = f"Section {s}" if s else (f"Article {a}" if a else (f"Rule {r}" if r else (h if h else "General Provision")))
-            prov_lines.append(f"- {tag}, {doc} [{eid}]")
+            tag = f"Section {s}" if s else (f"Article {a}" if a else (f"Rule {r}" if r else (h if h else "Relevant provision")))
+            prov_lines.append(f"- {doc}: {tag} [{eid}]")
 
         src_lines = ["\n### Sources"]
         for eid in evidence_map.keys():
@@ -313,7 +339,7 @@ class AnswerGenerator:
 
         note_lines = []
         if detected_conflicts:
-            note_lines.append("\n### Important note")
+            note_lines.append("\n### Notes")
             for c in detected_conflicts:
                 note_lines.append(f"- {c['description']}")
 
@@ -321,4 +347,7 @@ class AnswerGenerator:
         if note_lines:
             full_response += "\n" + "\n".join(note_lines)
 
+        # Ensure we never return an empty response which would cause downstream model output errors
+        if not full_response.strip():
+            return INSUFFICIENT_EVIDENCE_MESSAGE
         return full_response.strip()

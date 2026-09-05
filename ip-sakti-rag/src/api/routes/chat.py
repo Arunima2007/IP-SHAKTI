@@ -79,7 +79,10 @@ async def chat_query(payload: ChatRequest, request: Request):
             if isinstance(cit, dict):
                 cit_id = str(cit.get("citation_id") or cit.get("id") or idx)
                 ev_id = cit.get("evidence_id") or f"E{idx}"
-                doc_name = cit.get("document") or "Authoritative Source"
+                # The UI should show the canonical citation title, never an
+                # internal PDF filename.  Keep the raw document identifier in
+                # ``document_id`` for provenance.
+                doc_name = cit.get("document_title") or cit.get("document") or "Authoritative Source"
                 section_val = cit.get("section") or cit.get("rule") or cit.get("article")
                 page_val = cit.get("page")
                 tier = cit.get("source_tier") or determine_source_tier(doc_name)

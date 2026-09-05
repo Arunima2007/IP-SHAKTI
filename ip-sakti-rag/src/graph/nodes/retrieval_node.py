@@ -8,7 +8,8 @@ from typing import Dict, Any, Optional
 import time
 from src.graph.state import GraphState
 from src.retrieval.hybrid_search import HybridSearchEngine
-from src.config import FUSION_TOP_K, VECTOR_TOP_K, BM25_TOP_K
+from src.config import FUSION_TOP_K, VECTOR_TOP_K, BM25_TOP_K, EXACT_IDENTIFIER_BOOST
+from src.retrieval.exact_lookup import exact_legal_lookup
 
 
 class RetrievalNode:
@@ -40,6 +41,15 @@ class RetrievalNode:
         )
 
         candidates = search_result.get("fused_results", []) if isinstance(search_result, dict) else search_result
+
+        # Exact legal identifier lookup (first‑class retrieval)
+        exact_candidates = exact_legal_lookup(state)
+        # Merge: exact matches first, then hybrid results without duplicates
+        if exact_candidates:
+            seen_ids = {c.get("chunk_id") for c in exact_candidates}
+            merged = exact_candidates + [c for c in candidates if c.get("chunk_id") not in seen_ids]
+            candidates = merged
+
         latency = round((time.perf_counter() - t0) * 1000, 2)
 
         node_latencies = dict(state.get("node_latencies_ms", {}))
@@ -59,6 +69,17 @@ class RetrievalNode:
             "retrieval_attempt": attempt + 1,
             "retrieval_called": True,
             "retrieval_performed": True,
+            "retrieval_diagnostics": {
+                "query": query,
+                "query_type": state.get("query_type"),
+                "identified_document": (state.get("parsed_identifier") or {}).get("canonical_title"),
+                "identified_provision": (state.get("parsed_identifier") or {}).get("value"),
+                "identifier_match_count": len(exact_candidates),
+                "bm25_top_k": search_result.get("bm25_results", [])[:10],
+                "vector_top_k": search_result.get("vector_results", [])[:10],
+                "rrf_top_k": search_result.get("fused_results", [])[:10],
+                "final_candidates": candidates[:10],
+            },
             "node_latencies_ms": node_latencies,
             "execution_trace": trace
         }

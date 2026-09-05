@@ -147,6 +147,22 @@ SOURCE_HIERARCHY: Dict[str, Dict[str, any]] = {
     "wipo_patent_disclosure_gr_tk": {"tier": 3, "label": "Tier 3: Institutional Study", "weight": 0.75},
 }
 
+# Exact identifier retrieval boost (higher value prioritises exact legal matches)
+EXACT_IDENTIFIER_BOOST = 10.0
+
+# Mapping of user-friendly document names to their canonical titles used in metadata
+LEGAL_DOCUMENT_ALIASES = {
+    "Patents Act": "The Patents Act, 1970",
+    "Designs Act": "The Designs Act, 2000",
+    "Biological Diversity Act": "The Biological Diversity Act, 2002",
+    "Trade Marks Act": "The Trade Marks Act, 1999",
+    "Copyright Act": "The Copyright Act, 1957",
+}
+
+# Added configuration constants for exact legal identifier boost and document alias mapping
+
+
+
 # Validation & Grounding Thresholds
 MIN_CLAIM_SUPPORT_CONFIDENCE: float = 0.50
 RELEVANCE_SCORE_THRESHOLD: float = 0.05

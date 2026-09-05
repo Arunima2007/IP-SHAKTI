@@ -92,13 +92,42 @@ def test_evidence_sufficiency_node():
     assert "E1" in res_valid["evidence_map"]
 
 
+def test_evidence_sufficiency_rejects_wrong_provision_even_with_high_score():
+    node = EvidenceSufficiencyNode()
+    state = {
+        "query": "What does Section 3(p) of the Patents Act state?",
+        "query_type": "EXACT_LOOKUP",
+        "parsed_identifier": {"type": "section", "value": "3(p)", "canonical_title": "Patents Act, 1970"},
+        "exact_identifiers": ["Section 3(p)"],
+        "selected_evidence": [{
+            "chunk_id": "wrong", "document": "Patent Act-1970.pdf", "section": "4",
+            "text": "Section 4 concerns atomic energy.", "reranker_score": 0.99,
+        }],
+    }
+    result = node(state)
+    assert result["evidence_sufficient"] is False
+
+
+def test_current_fee_requires_fee_schedule_evidence():
+    node = EvidenceSufficiencyNode()
+    state = {
+        "query": "What is the exact current trademark registration fee in India?",
+        "query_type": "CURRENT_FEE_LOOKUP",
+        "selected_evidence": [{
+            "document": "The Trade Marks Act, 1999", "section": "25",
+            "text": "Registration is for ten years and may be renewed.", "reranker_score": 0.99,
+        }],
+    }
+    assert node(state)["evidence_sufficient"] is False
+
+
 def test_safe_refusal_node():
     node = SafeRefusalNode()
     # Out of scope
-    state_oos: GraphState = {"query_type": "OUT_OF_SCOPE", "scope_status": "OUT_OF_SCOPE", "scope_reason": "No relevant IP/AYUSH domain terms"}
+    state_oos: GraphState = {"query_type": "OUT_OF_SCOPE", "scope_status": "OUT_OF_SCOPE", "refusal_reason": "unsupported_general_knowledge"}
     res_oos = node(state_oos)
     assert res_oos["is_refusal"] is True
-    assert "outside the scope of IP-SAKTI Sahayak" in res_oos["final_answer"]
+    assert "outside my supported domain" in res_oos["final_answer"]
     assert res_oos["final_answer_type"] == "SAFE_REFUSAL"
 
     # Insufficient evidence
@@ -115,7 +144,7 @@ def test_compiled_langgraph_out_of_scope():
     result = coordinator.process_query(query)
 
     assert result["is_refusal"] is True
-    assert "outside the scope of IP-SAKTI Sahayak" in result["final_answer"]
+    assert "outside my supported domain" in result["final_answer"]
     assert result.get("retrieval_called", False) is False
     assert result.get("generation_called", False) is False
     assert len(result.get("citations", [])) == 0

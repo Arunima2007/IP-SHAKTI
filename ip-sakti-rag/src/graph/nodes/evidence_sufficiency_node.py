@@ -11,6 +11,7 @@ import re
 from src.graph.state import GraphState
 from src.generation.evidence_formatter import EvidenceFormatter
 from src.config import MIN_EVIDENCE_SCORE, MIN_SUFFICIENCY_CHUNKS, INSUFFICIENT_EVIDENCE_MESSAGE
+from src.retrieval.legal_identifier_parser import document_matches, provision_matches
 
 
 class EvidenceSufficiencyNode:
@@ -28,6 +29,7 @@ class EvidenceSufficiencyNode:
         scope_status = state.get("scope_status", "IN_SCOPE")
         selected_evidence = list(state.get("selected_evidence", []))
         exact_identifiers = state.get("exact_identifiers", [])
+        parsed_identifier = state.get("parsed_identifier") or {}
         query_domains = state.get("domains", [])
 
         # 1. Gate: If query was out of scope, evidence must be empty
@@ -61,26 +63,33 @@ class EvidenceSufficiencyNode:
                 state, t0, "Retrieved chunks are weakly related or from incompatible domains."
             )
 
-        # 5. Check Exact Statutory Identifier Coverage (for EXACT_LOOKUP queries)
-        if exact_identifiers:
-            all_text_lower = " ".join([
-                (c.get("text") or "").lower() + " " +
-                (c.get("heading") or "").lower() + " " +
-                (c.get("section") or "").lower() + " " +
-                (c.get("article") or "").lower() + " " +
-                (c.get("rule") or "").lower()
-                for c in filtered_evidence
-            ])
-            has_identifier_match = False
-            for ident in exact_identifiers:
-                clean_ident = ident.lower().replace("section ", "").replace("rule ", "").replace("article ", "").replace("patent no. ", "").strip()
-                if clean_ident in all_text_lower:
-                    has_identifier_match = True
-                    break
-            if not has_identifier_match and top_score < 0.20:
+        # Current fee questions may only be answered from an authoritative,
+        # fee-specific and dated source.  An Act section about duration or
+        # renewal is not evidence of a current amount.
+        if query_type == "CURRENT_FEE_LOOKUP":
+            fee_evidence = []
+            for chunk in filtered_evidence:
+                corpus = " ".join(str(chunk.get(key) or "") for key in ("text", "heading", "document", "rule", "regulation")).lower()
+                has_amount = bool(re.search(r"(?:₹|rs\.?|inr)\s*\d|\d[\d,]*\s*(?:rupees|rs\.?)", corpus))
+                official_fee_source = any(term in corpus for term in ("fee schedule", "fees", "notification", "rules"))
+                if has_amount and official_fee_source:
+                    fee_evidence.append(chunk)
+            if not fee_evidence:
                 return self._build_insufficient_result(
-                    state, t0, f"Requested exact provision(s) {exact_identifiers} not found in retrieved chunks."
+                    state, t0, "The knowledge base does not contain authoritative current fee-schedule evidence for this request."
                 )
+            filtered_evidence = fee_evidence
+
+        # 5. An exact lookup is sufficient only with the requested provision
+        # and requested Act.  Semantic score can never waive this invariant.
+        if parsed_identifier.get("type") and parsed_identifier.get("value"):
+            exact_evidence = [c for c in filtered_evidence if provision_matches(c, parsed_identifier)
+                              and document_matches(c, parsed_identifier.get("canonical_title") or parsed_identifier.get("document_hint"))]
+            if not exact_evidence:
+                return self._build_insufficient_result(
+                    state, t0, f"Requested exact provision {exact_identifiers} was not found in the requested authoritative document."
+                )
+            filtered_evidence = exact_evidence
 
         # 6. Format Evidence and Detect Conflicts
         formatted_evidence, evidence_map, conflicts = self.evidence_formatter.format_evidence(
@@ -121,34 +130,51 @@ class EvidenceSufficiencyNode:
         chunks: List[Dict[str, Any]],
         query_domains: List[str]
     ) -> List[Dict[str, Any]]:
-        """Filters candidate chunks to ensure substantive relevance to the query."""
-        query_tokens = set(re.findall(r'\b[a-zA-Z0-9_\u0900-\u097F]{3,}\b', query.lower()))
+        """Filters candidate chunks to ensure substantive relevance and domain compatibility."""
+        q_lower = query.lower()
+
+        # Reject explicitly out-of-scope or foreign legal queries immediately
+        foreign_jurisdictions = ["brazilian", "brazil", "germany", "german", "california", "australia", "japanese", "uk patent", "us patent"]
+        if any(fj in q_lower for fj in foreign_jurisdictions) and not any(ij in q_lower for ij in ["pct", "wipo", "epo", "paris convention"]):
+            return []
+
+        # Extract tokens of length >= 1 to capture alphanumeric section identifiers (e.g. 3, 3p, 43bis)
+        query_tokens = set(re.findall(r'[a-zA-Z0-9_\u0900-\u097F]+', q_lower))
         
         # Generic words ignored during keyword check
         stop_words = {
             "what", "the", "are", "and", "for", "how", "can", "kya", "hai", "mein", "par",
-            "section", "rule", "article", "act", "india", "law", "patent", "patents"
+            "section", "rule", "article", "act", "india", "law", "patent", "patents",
+            "is", "an", "of", "in", "to", "does", "state", "regarding"
         }
         distinctive_tokens = query_tokens - stop_words
 
         compatible_chunks = []
         for chunk in chunks:
-            chunk_text = (chunk.get("text") or "").lower()
-            chunk_doc = (chunk.get("document") or "").lower()
-            chunk_section = (chunk.get("section") or "").lower()
+            chunk_text = str(chunk.get("text") or "").lower()
+            doc_val = chunk.get("document") or (chunk.get("metadata") or {}).get("document_name") or ""
+            chunk_doc = str(doc_val or "").lower()
+            sec_val = chunk.get("section") or (chunk.get("metadata") or {}).get("section") or ""
+            chunk_section = str(sec_val or "").lower()
             chunk_full = f"{chunk_text} {chunk_doc} {chunk_section}"
+
+            chunk_score = float(
+                chunk.get("rerank_score") or
+                chunk.get("reranker_score") or
+                chunk.get("score") or
+                0.0
+            )
 
             # If distinctive query tokens exist, check overlap
             if distinctive_tokens:
                 overlap = [t for t in distinctive_tokens if t in chunk_full]
-                # Keep if there is token overlap or reranker score is solid
-                chunk_score = float(chunk.get("reranker_score", chunk.get("score", 0.0)))
-                if len(overlap) > 0 or chunk_score >= 0.20:
+                if len(overlap) > 0 or chunk_score >= MIN_EVIDENCE_SCORE:
                     compatible_chunks.append(chunk)
             else:
-                compatible_chunks.append(chunk)
+                if chunk_score >= MIN_EVIDENCE_SCORE:
+                    compatible_chunks.append(chunk)
 
-        return compatible_chunks if compatible_chunks else chunks
+        return compatible_chunks
 
     def _build_insufficient_result(
         self,

@@ -263,7 +263,9 @@ class ClaimCitationValidator:
             "as outlined below",
             "here is the explanation",
             "based on the authoritative documents",
-            "different jurisdictional rules"
+            "different jurisdictional rules",
+            "general provision",
+            "applicable provisions"
         ]
         if any(b in text_lower for b in boilerplate) and len(claim_text.split()) < 8:
             return False
@@ -287,8 +289,10 @@ class ClaimCitationValidator:
         art = evidence.get("article", "")
         rule = evidence.get("rule", "")
         doc = evidence.get("document", "")
+        from src.generation.citation_engine import CitationEngine
+        doc_clean = CitationEngine()._format_doc_title(str(doc)) if doc else ""
         
-        full_evidence_corpus = f"{raw_text} {heading} {sec} {art} {rule} {doc}".lower()
+        full_evidence_corpus = f"{raw_text} {heading} {sec} {art} {rule} {doc} {doc_clean}".lower()
         claim_lower = claim_text.lower()
 
         # 1. Statutory / Provision Check
@@ -296,17 +300,20 @@ class ClaimCitationValidator:
         if sec_match:
             sec_claimed = sec_match.group(1).replace(" ", "")
             sec_ev = str(evidence.get("section") or "").lower().replace(" ", "")
-            if sec_claimed not in full_evidence_corpus and (sec_ev and sec_claimed != sec_ev):
+            # Citation identity is authoritative.  Text can span neighbouring
+            # provisions in legacy chunks, but a citation to Section 4 cannot
+            # support a claim labelled Section 3(p).
+            if sec_ev and sec_claimed != sec_ev:
                 reasons.append({
                     "type": "citation_mismatch",
-                    "desc": f"Claim asserts Section '{sec_claimed}', but cited chunk does not contain it."
+                    "desc": f"Claim asserts Section '{sec_claimed}', but the cited provision is Section '{sec_ev}'."
                 })
 
         rule_match = re.search(r'\brule\s+([0-9]+[a-z]*)', claim_lower)
         if rule_match:
             rule_claimed = rule_match.group(1).replace(" ", "")
             rule_ev = str(evidence.get("rule") or "").lower().replace(" ", "")
-            if rule_claimed not in full_evidence_corpus and (rule_ev and rule_claimed != rule_ev):
+            if rule_ev and rule_claimed != rule_ev:
                 reasons.append({
                     "type": "citation_mismatch",
                     "desc": f"Claim asserts Rule '{rule_claimed}', but cited chunk does not contain it."
@@ -316,7 +323,7 @@ class ClaimCitationValidator:
         if art_match:
             art_claimed = art_match.group(1).replace(" ", "")
             art_ev = str(evidence.get("article") or "").lower().replace(" ", "")
-            if art_claimed not in full_evidence_corpus and (art_ev and art_claimed != art_ev):
+            if art_ev and art_claimed != art_ev:
                 reasons.append({
                     "type": "citation_mismatch",
                     "desc": f"Claim asserts Article '{art_claimed}', but cited chunk does not contain it."
@@ -330,7 +337,9 @@ class ClaimCitationValidator:
             "patent", "patents", "act", "acts", "indian", "law", "court", "guidelines",
             "system", "systems", "number", "numbers", "study", "studies", "category",
             "categories", "ingredient", "ingredients", "experience", "evidence", "order",
-            "serial", "safety", "published", "effective", "effectiveness"
+            "serial", "safety", "published", "effective", "effectiveness", "provisions",
+            "provision", "general", "short", "answer", "explanation", "applicable",
+            "biological", "diversity", "authority", "national", "traditional", "knowledge"
         }
         potential_entities = re.findall(r'\b([A-Z][a-z]+)\s+([a-z]+)\b', claim_text)
         for w1, w2 in potential_entities:

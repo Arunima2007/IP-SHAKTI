@@ -5,6 +5,7 @@ from src.retrieval.bm25_search import BM25SearchEngine, tokenize_legal_technical
 from src.retrieval.filter_builder import MetadataFilterBuilder
 from src.retrieval.hybrid_search import HybridSearchEngine
 from src.retrieval.vector_store import QdrantVectorStore
+from src.retrieval.legal_identifier_parser import parse, provision_matches, document_matches
 
 
 def test_content_hash_deterministic():
@@ -77,3 +78,23 @@ def test_metadata_filter_builder():
     filters_india, conf_india = MetadataFilterBuilder.infer_filters_from_query("Can an Ayurvedic formulation be patented in India?")
     assert filters_india is not None
     assert filters_india.get("jurisdiction") == "India"
+
+
+def test_legal_identifier_variants_and_document_normalization():
+    for query in ("Section 3(p) of the Patents Act", "sec. 3(p) Patents Act", "s. 3(p) of Patent Act-1970.pdf"):
+        parsed = parse(query)
+        assert parsed["type"] == "section"
+        assert parsed["value"] == "3(p)"
+        assert parsed["canonical_title"] == "Patents Act, 1970"
+
+
+def test_exact_identifier_matches_clause_in_legacy_cross_section_chunk():
+    chunk = {
+        "document": "Patent Act-1970.pdf",
+        "section": "4",  # legacy metadata is the following section
+        "text": "(p) an invention which, in effect, is traditional knowledge.\n4. Atomic energy.",
+        "metadata": {"document": "Patent Act-1970.pdf", "section": "4"},
+    }
+    parsed = parse("What does Section 3(p) of the Patents Act state?")
+    assert provision_matches(chunk, parsed)
+    assert document_matches(chunk, parsed["canonical_title"])
