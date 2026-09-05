@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+__MACOSX/
+.env
+data/raw/*.pdf
+indexes/qdrant/
+indexes/bm25/

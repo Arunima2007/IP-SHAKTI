@@ -1,0 +1,216 @@
+{
+  "total_failures": 4,
+  "timestamp": "2026-09-05 01:26:43",
+  "failures": [
+    {
+      "query_id": 6,
+      "query": "What are the disclosure requirements for biological materials under Section 10(4) of the Patents Act?",
+      "category": "PATENT",
+      "failure_type": "wrong_document",
+      "expected_evidence": {
+        "documents": [
+          "patent_act_1970",
+          "ayush_related_inventions_guidelines_2025"
+        ],
+        "sections": [
+          "10",
+          "10(4)"
+        ],
+        "articles": [],
+        "rules": [],
+        "keywords": [
+          "biological material",
+          "source and geographical origin",
+          "specification"
+        ]
+      },
+      "retrieved_evidence": [
+        {
+          "rank": 1,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p23_c30",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.016001,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Heading: Page 23 | Page: 23] Key Questions o..."
+        },
+        {
+          "rank": 2,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p75_c139",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.015417,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Part: Part I | Article: 10 | Heading: Articl..."
+        },
+        {
+          "rank": 3,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p75_c140",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.015388,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Part: Part I | Article: 26 | Heading: Articl..."
+        }
+      ],
+      "possible_reason": "Retrieved candidate documents belong to different domain/jurisdiction.",
+      "recommended_fix": "Apply stricter metadata pre-filtering or query domain classifier."
+    },
+    {
+      "query_id": 7,
+      "query": "Can an Ayurvedic formulation be patented in India?",
+      "category": "AYURVEDA",
+      "failure_type": "wrong_document",
+      "expected_evidence": {
+        "documents": [
+          "ayush_related_inventions_guidelines_2025",
+          "guidelines_tk_biological_material_2012"
+        ],
+        "sections": [
+          "3(p)",
+          "3(e)",
+          "3(d)"
+        ],
+        "articles": [],
+        "rules": [],
+        "keywords": [
+          "ayurvedic formulation",
+          "synergy",
+          "mere admixture",
+          "prior art",
+          "tkdl"
+        ]
+      },
+      "retrieved_evidence": [
+        {
+          "rank": 1,
+          "chunk_id": "drugs_and_cosmetics_act_1940_p179_c329",
+          "document": "Drugs_and_Cosmetics_Act_1940.pdf",
+          "section": "156",
+          "score": 0.015877,
+          "preview": "[Document: Drugs_and_Cosmetics_Act_1940.pdf | Jurisdiction: India | Part: Part XV | Chapter: Chapter IV | Schedule: Sche..."
+        },
+        {
+          "rank": 2,
+          "chunk_id": "drugs_and_cosmetics_act_1940_p182_c332",
+          "document": "Drugs_and_Cosmetics_Act_1940.pdf",
+          "section": null,
+          "score": 0.014929,
+          "preview": "[Document: Drugs_and_Cosmetics_Act_1940.pdf | Jurisdiction: India | Part: Part XV | Chapter: Chapter IV | Schedule: Sche..."
+        },
+        {
+          "rank": 3,
+          "chunk_id": "drugs_and_cosmetics_act_1940_p278_c493",
+          "document": "Drugs_and_Cosmetics_Act_1940.pdf",
+          "section": "30",
+          "score": 0.014042,
+          "preview": "[Document: Drugs_and_Cosmetics_Act_1940.pdf | Jurisdiction: India | Part: Part X | Chapter: Chapter IV | Schedule: Sched..."
+        }
+      ],
+      "possible_reason": "Retrieved candidate documents belong to different domain/jurisdiction.",
+      "recommended_fix": "Apply stricter metadata pre-filtering or query domain classifier."
+    },
+    {
+      "query_id": 30,
+      "query": "Curcuma longa",
+      "category": "EXACT_LOOKUP",
+      "failure_type": "keyword_mismatch",
+      "expected_evidence": {
+        "documents": [
+          "ayush_related_inventions_guidelines_2025",
+          "guidelines_tk_biological_material_2012"
+        ],
+        "sections": [],
+        "articles": [],
+        "rules": [],
+        "keywords": [
+          "curcuma",
+          "turmeric",
+          "haldi",
+          "rhizome"
+        ]
+      },
+      "retrieved_evidence": [
+        {
+          "rank": 1,
+          "chunk_id": "order_fssai_ayurveda_aahara_schedules_2025_p73_c40",
+          "document": "Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf",
+          "section": null,
+          "score": 0.016001,
+          "preview": "[Document: Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf | Jurisdiction: India | Schedule: Schedule | Heading: Pa..."
+        },
+        {
+          "rank": 2,
+          "chunk_id": "order_fssai_ayurveda_aahara_schedules_2025_p159_c82",
+          "document": "Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf",
+          "section": null,
+          "score": 0.008197,
+          "preview": "[Document: Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf | Jurisdiction: India | Schedule: Schedule | Heading: Pa..."
+        },
+        {
+          "rank": 3,
+          "chunk_id": "order_fssai_ayurveda_aahara_schedules_2025_p48_c33",
+          "document": "Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf",
+          "section": null,
+          "score": 0.008197,
+          "preview": "[Document: Order dated 25-07-2025 enclosing Ayurveda Aahara.pdf | Jurisdiction: India | Schedule: Schedule | Heading: Pa..."
+        }
+      ],
+      "possible_reason": "Exact identifier/citation did not match lexical token index format.",
+      "recommended_fix": "Augment legal tokenizer regular expressions."
+    },
+    {
+      "query_id": 36,
+      "query": "What are the disclosure requirements for patent applications based on Indian genetic resources and traditional knowledge?",
+      "category": "CROSS_DOMAIN",
+      "failure_type": "cross_domain_failure",
+      "expected_evidence": {
+        "documents": [
+          "patent_act_1970",
+          "biological_diversity_act_2002",
+          "wipo_gr_tk_treaty_2024",
+          "ayush_related_inventions_guidelines_2025"
+        ],
+        "sections": [
+          "10(4)",
+          "6"
+        ],
+        "articles": [
+          "3"
+        ],
+        "rules": [],
+        "keywords": [
+          "disclosure requirement",
+          "source and geographical origin",
+          "genetic resources",
+          "traditional knowledge"
+        ]
+      },
+      "retrieved_evidence": [
+        {
+          "rank": 1,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p5_c3",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.015772,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Heading: Page 5 | Page: 5] Foreword Transpar..."
+        },
+        {
+          "rank": 2,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p9_c7",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.015749,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Heading: Page 9 | Page: 9] There is keen int..."
+        },
+        {
+          "rank": 3,
+          "chunk_id": "wipo_patent_disclosure_gr_tk_p9_c8",
+          "document": "WIPO_Patent_Disclosure_GR_TK.pdf",
+          "section": null,
+          "score": 0.015207,
+          "preview": "[Document: WIPO_Patent_Disclosure_GR_TK.pdf | Jurisdiction: International | Heading: Page 9 | Page: 9] The aims of this ..."
+        }
+      ],
+      "possible_reason": "Query spans multiple legal statutes; single retrieval list biased toward highest semantic cluster.",
+      "recommended_fix": "Implement multi-query decomposition in Milestone 3 query planner or reciprocal rank fusion with domain grouping."
+    }
+  ]
+}

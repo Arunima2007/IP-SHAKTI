@@ -1,0 +1,390 @@
+{
+  "metadata_provenance_declaration": {
+    "provenance": "manual_retrieval_metadata",
+    "authority_level": "retrieval_expansion_only",
+    "usage_scope": "Query expansion, synonym matching, and hybrid retrieval. Not statutory legal evidence.",
+    "last_updated": "2026-09-04"
+  },
+  "terms": [
+    {
+      "term_id": "ashwagandha",
+      "common_name": "Ashwagandha",
+      "scientific_name": "Withania somnifera",
+      "sanskrit_name": "अश्वगन्धा",
+      "sanskrit_transliteration": "Aśvagandhā",
+      "hindi_name": "अश्वगंधा",
+      "alternative_spellings": ["Asgandh", "Ashvagandha", "Asvagandha", "Withania"],
+      "plant_part": "Root",
+      "classical_category": "Rasayana / Balya",
+      "retrieval_synonyms": ["Indian Ginseng", "Winter Cherry", "Varahakarni"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/81", "A61K 125/00"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Frequently subject to prior art scrutiny under Section 3(p) for traditional rejuvenation and adaptogenic formulations."
+      }
+    },
+    {
+      "term_id": "haridra",
+      "common_name": "Turmeric / Haridra",
+      "scientific_name": "Curcuma longa",
+      "sanskrit_name": "हरिद्रा",
+      "sanskrit_transliteration": "Haridrā",
+      "hindi_name": "हल्दी",
+      "alternative_spellings": ["Haldi", "Haridra", "Curcuma", "Nisha"],
+      "plant_part": "Rhizome",
+      "classical_category": "Kushthaghna / Lekhaniya / Varnya",
+      "retrieval_synonyms": ["Indian Saffron", "Kanchani", "Gauri", "Krimighna"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/9066", "A61K 131/00"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Historic landmark patent revocation case (US Patent 5,401,504 on wound healing revoked via CSIR/TKDL)."
+      }
+    },
+    {
+      "term_id": "nimba",
+      "common_name": "Neem / Nimba",
+      "scientific_name": "Azadirachta indica",
+      "sanskrit_name": "निम्ब",
+      "sanskrit_transliteration": "Nimba",
+      "hindi_name": "नीम",
+      "alternative_spellings": ["Neem", "Nimb", "Azadirachta", "Pichumarda"],
+      "plant_part": "Leaves, Bark, Seed Oil",
+      "classical_category": "Kandughna / Tiktaskandha / Krimighna",
+      "retrieval_synonyms": ["Margosa Tree", "Arishta", "Pichumanda"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/58", "A01N 65/26"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Landmark EPO patent revocation (EPO Patent 0436257 on fungicidal effect revoked on TK prior art grounds)."
+      }
+    },
+    {
+      "term_id": "tulasi",
+      "common_name": "Tulsi / Holy Basil",
+      "scientific_name": "Ocimum sanctum / Ocimum tenuiflorum",
+      "sanskrit_name": "तुलसी",
+      "sanskrit_transliteration": "Tulasī",
+      "hindi_name": "तुलसी",
+      "alternative_spellings": ["Tulasi", "Holy Basil", "Surasa", "Ocimum"],
+      "plant_part": "Leaves, Aerial Parts",
+      "classical_category": "Svasahara / Kaphaghna",
+      "retrieval_synonyms": ["Surasa", "Bahumanjari", "Vishnupriya"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/53", "A61K 135/00"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Key botanical in respiratory, adaptogenic, and antiviral AYUSH patent claims."
+      }
+    },
+    {
+      "term_id": "amalaki",
+      "common_name": "Amalaki / Amla",
+      "scientific_name": "Phyllanthus emblica / Emblica officinalis",
+      "sanskrit_name": "आमलकी",
+      "sanskrit_transliteration": "Āmalakī",
+      "hindi_name": "आंवला",
+      "alternative_spellings": ["Amla", "Amalaki", "Emblica", "Dhatri"],
+      "plant_part": "Fruit",
+      "classical_category": "Rasayana / Vayasthapana",
+      "retrieval_synonyms": ["Indian Gooseberry", "Dhatriphala", "Shiva", "Amritaphala"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/47", "A61K 36/185"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Primary ingredient in Chyawanprash, Triphala; protected under TKDL formulations."
+      }
+    },
+    {
+      "term_id": "haritaki",
+      "common_name": "Haritaki",
+      "scientific_name": "Terminalia chebula",
+      "sanskrit_name": "हरीतकी",
+      "sanskrit_transliteration": "Harītakī",
+      "hindi_name": "हरड़",
+      "alternative_spellings": ["Harad", "Haritaki", "Chebula", "Abhaya"],
+      "plant_part": "Fruit pericarp",
+      "classical_category": "Triphala / Rasayana / Virechana",
+      "retrieval_synonyms": ["Chebulic Myrobalan", "Abhaya", "Pathya", "Jivanti"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/185"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Major component of classical purgative and gastroprotective polyherbals."
+      }
+    },
+    {
+      "term_id": "bibhitaki",
+      "common_name": "Bibhitaki / Baheda",
+      "scientific_name": "Terminalia bellirica",
+      "sanskrit_name": "बिभीतक",
+      "sanskrit_transliteration": "Bibhītaka",
+      "hindi_name": "बहेड़ा",
+      "alternative_spellings": ["Baheda", "Vibhita", "Beleric Myrobalan"],
+      "plant_part": "Fruit",
+      "classical_category": "Triphala / Kaphaghna / Chedana",
+      "retrieval_synonyms": ["Beleric Myrobalan", "Aksha", "Kalidruma"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/185"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Antitussive and antimicrobial polyherbal ingredient in prior art disclosures."
+      }
+    },
+    {
+      "term_id": "guduchi",
+      "common_name": "Guduchi / Giloy",
+      "scientific_name": "Tinospora cordifolia",
+      "sanskrit_name": "गुडूची",
+      "sanskrit_transliteration": "Guḍūcī",
+      "hindi_name": "गिलोय",
+      "alternative_spellings": ["Giloe", "Guduchi", "Amrita", "Tinospora"],
+      "plant_part": "Stem",
+      "classical_category": "Rasayana / Jvaraghna / Dahaprashamana",
+      "retrieval_synonyms": ["Heart-leaved Moonseed", "Amrita", "Chinnaruha", "Chakralakshanika"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/59"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Immunomodulatory agent frequently claimed in novel extraction and synthetic combination patents."
+      }
+    },
+    {
+      "term_id": "brahmi",
+      "common_name": "Brahmi / Bacopa",
+      "scientific_name": "Bacopa monnieri",
+      "sanskrit_name": "ब्राह्मी",
+      "sanskrit_transliteration": "Brāhmī",
+      "hindi_name": "ब्राह्मी",
+      "alternative_spellings": ["Brahmi", "Bacopa", "Jalaneemi"],
+      "plant_part": "Whole plant",
+      "classical_category": "Medhya / Prajasthapana / Ayushya",
+      "retrieval_synonyms": ["Water Hyssop", "Aindri", "Nirbrahmi"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/68"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Nootropic and cognitive enhancement patent applications; subject to Section 3(p) objections."
+      }
+    },
+    {
+      "term_id": "mandukaparni",
+      "common_name": "Mandukaparni / Gotu Kola",
+      "scientific_name": "Centella asiatica",
+      "sanskrit_name": "मण्डूकपर्णी",
+      "sanskrit_transliteration": "Maṇḍūkaparṇī",
+      "hindi_name": "कुल्हड़ / ब्राह्मी बूटी",
+      "alternative_spellings": ["Gotu Kola", "Mandookaparni", "Centella"],
+      "plant_part": "Whole plant",
+      "classical_category": "Medhya / Rasayana / Vayasthapana",
+      "retrieval_synonyms": ["Indian Pennywort", "Brahmi", "Manduki", "Twashti"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/23"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Wound healing, dermatological, and neuroprotective patent claims."
+      }
+    },
+    {
+      "term_id": "guggulu",
+      "common_name": "Guggulu",
+      "scientific_name": "Commiphora mukul / Commiphora wightii",
+      "sanskrit_name": "गुग्गुलु",
+      "sanskrit_transliteration": "Guggulu",
+      "hindi_name": "गुग्गल",
+      "alternative_spellings": ["Guggal", "Guggul", "Commiphora"],
+      "plant_part": "Exudate / Oleo-gum resin",
+      "classical_category": "Medoroga / Vatahara / Sandhaniya",
+      "retrieval_synonyms": ["Indian Bdellium", "Devadhupa", "Mahishaksha", "Kaushika"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/328"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Hypolipidemic and anti-inflammatory guggulsterone fractions in patent litigations."
+      }
+    },
+    {
+      "term_id": "shatavari",
+      "common_name": "Shatavari",
+      "scientific_name": "Asparagus racemosus",
+      "sanskrit_name": "शतावरी",
+      "sanskrit_transliteration": "Śatāvarī",
+      "hindi_name": "शतावर",
+      "alternative_spellings": ["Satavari", "Shatavar", "Asparagus"],
+      "plant_part": "Tuberous Root",
+      "classical_category": "Stanyajanana / Balya / Rasayana",
+      "retrieval_synonyms": ["Wild Asparagus", "Bahusuta", "Atirasa", "Vari"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/8963"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Female reproductive health, galactagogue, and phytoestrogen formulation patents."
+      }
+    },
+    {
+      "term_id": "pippali",
+      "common_name": "Pippali / Long Pepper",
+      "scientific_name": "Piper longum",
+      "sanskrit_name": "पिप्पली",
+      "sanskrit_transliteration": "Pippalī",
+      "hindi_name": "पीपल / पिप्पली",
+      "alternative_spellings": ["Pipal", "Pippali", "Piper", "Magadhi"],
+      "plant_part": "Dried fruiting spikes",
+      "classical_category": "Trikatu / Deepana / Kasahara",
+      "retrieval_synonyms": ["Indian Long Pepper", "Magadhi", "Kana", "Vaidehi"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/67"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Bioavailability enhancer (Yogavahi / piperine mechanism) cited in drug delivery patents."
+      }
+    },
+    {
+      "term_id": "maricha",
+      "common_name": "Maricha / Black Pepper",
+      "scientific_name": "Piper nigrum",
+      "sanskrit_name": "मरिच",
+      "sanskrit_transliteration": "Marica",
+      "hindi_name": "काली मिर्च",
+      "alternative_spellings": ["Kali Mirch", "Marich", "Black Pepper"],
+      "plant_part": "Dried fruit",
+      "classical_category": "Trikatu / Deepana / Krimighna",
+      "retrieval_synonyms": ["Black Pepper", "Vellaja", "Ushana", "Krishna"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/67"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Standard classical bio-enhancer in Trikatu formulations."
+      }
+    },
+    {
+      "term_id": "shunthi",
+      "common_name": "Shunthi / Ginger",
+      "scientific_name": "Zingiber officinale",
+      "sanskrit_name": "शुण्ठी",
+      "sanskrit_transliteration": "Śuṇṭhī",
+      "hindi_name": "सोंठ / अदरक",
+      "alternative_spellings": ["Sonth", "Adrak", "Shunti", "Nagara"],
+      "plant_part": "Dried Rhizome",
+      "classical_category": "Trikatu / Triptighna / Arshoghna",
+      "retrieval_synonyms": ["Dry Ginger", "Mahaushadha", "Nagara", "Vishvabhesaja"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/9068"],
+        "tkdl_domain": "Ayurveda Materia Medica"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Anti-emetic, digestive, and gingerol extract patent claims."
+      }
+    },
+    {
+      "term_id": "triphala",
+      "common_name": "Triphala",
+      "scientific_name": "Polyherbal combination (Emblica officinalis + Terminalia chebula + Terminalia bellirica)",
+      "sanskrit_name": "त्रिफला",
+      "sanskrit_transliteration": "Triphalā",
+      "hindi_name": "त्रिफला",
+      "alternative_spellings": ["Trifala", "Three Myrobalans"],
+      "plant_part": "Equal ratio fruit pericarps",
+      "classical_category": "Rasayana / Chakshushya / Deepana",
+      "retrieval_synonyms": ["Phalatrikam", "Vara"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/185", "A61K 125/00"],
+        "tkdl_domain": "Ayurveda Formulations"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Classical formulation cited against multiple generic antioxidant and dental formulations."
+      }
+    },
+    {
+      "term_id": "trikatu",
+      "common_name": "Trikatu",
+      "scientific_name": "Polyherbal combination (Zingiber officinale + Piper nigrum + Piper longum)",
+      "sanskrit_name": "त्रिकटु",
+      "sanskrit_transliteration": "Trikaṭu",
+      "hindi_name": "त्रिकटु",
+      "alternative_spellings": ["Trikata", "Katutraya"],
+      "plant_part": "Rhizome and fruits in equal parts",
+      "classical_category": "Deepana / Pachana / Sleshmahara",
+      "retrieval_synonyms": ["Three Pungents", "Katutraya", "Vyosha"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/67", "A61K 36/9068"],
+        "tkdl_domain": "Ayurveda Formulations"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Classical bioavailability enhancement vehicle."
+      }
+    },
+    {
+      "term_id": "chyawanprash",
+      "common_name": "Chyawanprash",
+      "scientific_name": "Classical Rasayana formulation based on Emblica officinalis and Ashtavarga herbs",
+      "sanskrit_name": "च्यवनप्राश",
+      "sanskrit_transliteration": "Cyavanaprāśa",
+      "hindi_name": "च्यवनप्राश",
+      "alternative_spellings": ["Chyavanaprasha", "Chyavanprash", "Chavanprash"],
+      "plant_part": "Herbal paste / Avaleha",
+      "classical_category": "Rasayana / Kasa-Svasahara",
+      "retrieval_synonyms": ["Chyawanprash Avaleha"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A61K 36/00", "A61K 131/00"],
+        "tkdl_domain": "Ayurveda Formulations"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Renowned Ayurvedic nutraceutical and immunity promoter."
+      }
+    },
+    {
+      "term_id": "ayurveda_aahara",
+      "common_name": "Ayurveda Aahara",
+      "scientific_name": "Food prepared in accordance with the recipes or books specified in the First Schedule to the Drugs and Cosmetics Act, 1940",
+      "sanskrit_name": "आयुर्वेद आहार",
+      "sanskrit_transliteration": "Āyurveda Āhāra",
+      "hindi_name": "आयुर्वेद आहार",
+      "alternative_spellings": ["Ayurvedic Food", "Ayur Aahar"],
+      "plant_part": "Food preparations / Dietary recipes",
+      "classical_category": "Pathya Aahara / Kalpana",
+      "retrieval_synonyms": ["Dietary Regimen", "Pathya Kalpana", "Aahara Kalpana"],
+      "retrieval_classifications": {
+        "ipc_classes": ["A23L 33/105", "A23L 19/00"],
+        "tkdl_domain": "Ayurveda Food Formulations"
+      },
+      "retrieval_context_notes": {
+        "provenance": "manual_retrieval_metadata",
+        "description": "Regulated under FSSAI (Ayurveda Aahara) Regulations, 2022 and FSSAI Directions dated 25-07-2025."
+      }
+    }
+  ]
+}
