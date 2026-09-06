@@ -203,6 +203,7 @@ class ClaimCitationValidator:
         
         # Skip section headers and Sources section
         in_sources_section = False
+        in_provisions_section = False
 
         for line in lines:
             line_str = line.strip()
@@ -210,12 +211,18 @@ class ClaimCitationValidator:
                 continue
             if line_str.startswith("### Sources") or line_str.startswith("### Important Note"):
                 in_sources_section = True
+                in_provisions_section = False
                 continue
             if in_sources_section:
                 if line_str.startswith("###"):
                     in_sources_section = False
                 else:
                     continue
+            if line_str.startswith("### Applicable provisions"):
+                in_provisions_section = True
+                continue
+            if in_provisions_section:
+                continue
             if line_str.startswith("###"):
                 continue
 
@@ -332,6 +339,7 @@ class ClaimCitationValidator:
         # 2. Key Entity Containment (Botanical / Latin Names)
         common_words = {
             "where", "when", "under", "according", "applicants", "furthermore", "however",
+            "as", "stated", "based",
             "section", "article", "rule", "the", "this", "that", "these", "those", "each",
             "all", "any", "some", "an", "such", "in", "on", "for", "with", "by", "from",
             "patent", "patents", "act", "acts", "indian", "law", "court", "guidelines",

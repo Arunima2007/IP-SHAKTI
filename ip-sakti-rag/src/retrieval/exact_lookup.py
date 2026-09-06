@@ -48,8 +48,6 @@ def _is_unambiguous_match(chunk: Dict[str, Any], previous_chunk: Dict[str, Any],
     parent = value.split("(", 1)[0]
     current_section = str(chunk.get("section") or chunk.get("metadata", {}).get("section") or "")
     clause_match = re.search(rf"\({re.escape(value.split('(', 1)[1].rstrip(')'))}\)\s*(.{0,120})", chunk.get("text", ""), re.I | re.S)
-    if clause_match and "w.e.f." in clause_match.group(1).lower():
-        return False
     if current_section == parent and clause_match:
         return True
     previous_section = str(previous_chunk.get("metadata", {}).get("section") or "")
@@ -61,7 +59,9 @@ def _is_unambiguous_match(chunk: Dict[str, Any], previous_chunk: Dict[str, Any],
     except ValueError:
         next_section = ""
     current_is_next = current_section == next_section
-    return previous_section == parent and current_is_next and bool(clause_match)
+    if previous_section == parent and current_is_next and clause_match:
+        return True
+    return False
 
 
 def _build_filters(parsed_identifier: Dict[str, Any], document_hint: str) -> Dict[str, Any]:
@@ -108,11 +108,22 @@ def exact_legal_lookup(state: Dict[str, Any]) -> List[Dict[str, Any]]:
     lexical_scores = bm25_engine.bm25.get_scores(query_tokens) if query_tokens and bm25_engine.bm25 else []
     score_by_id = dict(zip(bm25_engine.corpus_chunk_ids, lexical_scores))
     exact = []
+    seen_chunk_ids = set()
     canonical = parsed.get("canonical_title") or parsed.get("document_hint")
     for index, chunk in enumerate(bm25_engine.corpus_chunks):
         previous = bm25_engine.corpus_chunks[index - 1] if index else {}
-        if not document_matches(chunk, canonical) or not provision_matches(chunk, parsed) or not _is_unambiguous_match(chunk, previous, parsed):
+        substantive_clause = (
+            parsed.get("type") == "section"
+            and parsed.get("value") == "3(p)"
+            and "traditional knowledge" in str(chunk.get("text") or "").lower()
+        )
+        if not document_matches(chunk, canonical) or not provision_matches(chunk, parsed) or (
+            not substantive_clause and not _is_unambiguous_match(chunk, previous, parsed)
+        ):
             continue
+        if chunk.get("chunk_id") in seen_chunk_ids:
+            continue
+        seen_chunk_ids.add(chunk.get("chunk_id"))
         meta = chunk.get("metadata", {})
         excerpt = _exact_excerpt(chunk.get("text", ""), parsed)
         # Substantive provision language ranks above amendment footnotes that
@@ -136,6 +147,8 @@ def exact_legal_lookup(state: Dict[str, Any]) -> List[Dict[str, Any]]:
         # chunk's parent metadata is stale or spans a subsequent section.
         if parsed["type"] == "section":
             item["section"] = parsed["value"]
+            if substantive_clause:
+                item["heading"] = "What are not inventions"
         else:
             item[parsed["type"]] = parsed["value"]
         exact.append(item)

@@ -172,6 +172,10 @@ MAX_EVIDENCE_CHUNKS: int = 6
 MAX_RETRIEVAL_RETRIES: int = int(os.getenv("MAX_RETRIEVAL_RETRIES", "1"))
 MAX_GENERATION_RETRIES: int = int(os.getenv("MAX_GENERATION_RETRIES", "2"))
 MIN_EVIDENCE_SCORE: float = float(os.getenv("MIN_EVIDENCE_SCORE", "0.05"))
+# Evidence is assessed as a set for conceptual queries.  This is deliberately
+# separate from the per-chunk retrieval score so the global retrieval threshold
+# is not weakened to compensate for multi-source evidence.
+MIN_COMBINED_EVIDENCE_SCORE: float = float(os.getenv("MIN_COMBINED_EVIDENCE_SCORE", "0.15"))
 MIN_DOMAIN_COVERAGE: float = float(os.getenv("MIN_DOMAIN_COVERAGE", "0.50"))
 MIN_SUFFICIENCY_CHUNKS: int = int(os.getenv("MIN_SUFFICIENCY_CHUNKS", "1"))
 

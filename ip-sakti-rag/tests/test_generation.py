@@ -204,3 +204,35 @@ def test_citation_validator_rejects_wrong_cited_provision(sample_chunks):
     )
     assert result["is_valid"] is False
     assert any(issue["type"] == "citation_mismatch" for issue in result["flagged_issues"])
+
+
+def test_exact_lookup_does_not_emit_neighboring_section_claim(sample_chunks):
+    formatter = EvidenceFormatter()
+    formatted_evidence, evidence_map, conflicts = formatter.format_evidence([sample_chunks[0]])
+    answer, _ = AnswerGenerator().generate(
+        "What does Section 3(p) of the Patents Act state?",
+        formatted_evidence,
+        evidence_map,
+        conflicts,
+    )
+    assert "Specifically," not in answer
+    assert "Section 3(p)" in answer
+
+
+def test_ayush_patentability_answer_is_conditional(sample_chunks):
+    formatter = EvidenceFormatter()
+    ayush_chunk = dict(sample_chunks[1])
+    ayush_chunk["text"] = (
+        "Guiding Principle 5: In case a multi-ingredient formulation is known to have "
+        "a specific therapeutic activity as per the prior art, merely selecting one "
+        "or more ingredient for the same said therapeutic activity cannot be considered as inventive."
+    )
+    formatted_evidence, evidence_map, conflicts = formatter.format_evidence([ayush_chunk])
+    answer, _ = AnswerGenerator().generate(
+        "Can a classical Ayurvedic formulation described in the Ayurvedic Pharmacopoeia of India be patented as an invention?",
+        formatted_evidence,
+        evidence_map,
+        conflicts,
+    )
+    assert "cannot be considered inventive" in answer
+    assert "automatically" not in answer.lower()

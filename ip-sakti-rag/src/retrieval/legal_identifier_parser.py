@@ -14,7 +14,7 @@ _PROVISION_PATTERNS = (
     ("article", re.compile(r"\b(?:article|art\.?|अनुच्छेद)\s*([0-9]+[a-z]*(?:\([a-z0-9]+\))*)", re.I)),
     ("rule", re.compile(r"\b(?:rule|r\.?|नियम)\s*([0-9]+(?:bis|ter|quater)?[a-z]*(?:\.\d+)?)", re.I)),
     ("regulation", re.compile(r"\b(?:regulation|reg\.?)\s*([0-9]+[a-z]*(?:\([a-z0-9]+\))*)", re.I)),
-    ("schedule", re.compile(r"\b((?:first|second|third|fourth|[0-9]+)(?:\s+schedule)?|schedule\s+[ivxlcdm0-9]+)", re.I)),
+    ("schedule", re.compile(r"\b((?:first|second|third|fourth)(?:\s+schedule)?|schedule\s+[ivxlcdm0-9]+)", re.I)),
     ("patent", re.compile(r"\bpatent\s*(?:no\.?|number)?\s*([0-9]{5,10})\b", re.I)),
 )
 _DOCUMENTS = {

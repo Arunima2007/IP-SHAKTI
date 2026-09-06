@@ -148,6 +148,13 @@ async def chat_query(payload: ChatRequest, request: Request):
             domains=domains,
             citations=citation_items,
             is_refusal=is_refusal,
+            refusal_diagnostics=(
+                {
+                    **(result.get("evidence_sufficiency_diagnostics") or {}),
+                    "validation_issues": result.get("citation_validation", {}).get("flagged_issues", []),
+                }
+                if is_refusal else None
+            ),
             validation=validation_obj,
             metadata=metadata_obj
         )

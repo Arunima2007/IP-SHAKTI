@@ -45,6 +45,7 @@ class GraphState(TypedDict, total=False):
     # 3. Evidence Sufficiency Decision
     evidence_sufficient: bool
     evidence_sufficiency_reason: str
+    evidence_sufficiency_diagnostics: Dict[str, Any]
 
     # 4. Generation & Post-Processing
     generation_called: bool

@@ -39,6 +39,16 @@ def test_query_understanding_classification():
     res4 = node(state4)
     assert res4["query_type"] == "OUT_OF_SCOPE"
 
+    # A year in a guideline title is not an exact statutory schedule.
+    ayush = node({"query": "What does the AYUSH 2025 guideline say about traditional knowledge?"})
+    assert ayush["query_type"] == "AYURVEDA_IP"
+    assert ayush["exact_identifiers"] == []
+    assert set(["ayurveda", "traditional_knowledge"]).issubset(set(ayush["domains"]))
+
+    formulation = node({"query": "Can a classical Ayurvedic formulation described in the Ayurvedic Pharmacopoeia of India be patented as an invention?"})
+    assert formulation["expanded_query"] is not None
+    assert "patentability" in formulation["expanded_query"].lower()
+
 
 def test_routers():
     # Query Router
@@ -119,6 +129,111 @@ def test_current_fee_requires_fee_schedule_evidence():
         }],
     }
     assert node(state)["evidence_sufficient"] is False
+
+
+def _authoritative_chunk(chunk_id, document, domains, text, score=0.2, section=None):
+    return {
+        "chunk_id": chunk_id,
+        "document": document,
+        "section": section,
+        "text": text,
+        "reranker_score": score,
+        "metadata": {
+            "document_id": "ayush_related_inventions_guidelines_2025" if "AYUSH" in document else "patent_act_1970",
+            "document": document,
+            "domain": domains,
+            "jurisdiction": "India",
+        },
+    }
+
+
+@pytest.mark.parametrize("query", [
+    "What does the AYUSH 2025 guideline say about traditional knowledge?",
+    "How does traditional knowledge relate to patentability under Indian law?",
+])
+def test_conceptual_queries_use_collective_authoritative_evidence(query):
+    node = EvidenceSufficiencyNode()
+    result = node({
+        "query": query,
+        "query_type": "AYURVEDA_IP" if "AYUSH" in query else "EXPLANATORY",
+        "query_category": "AYURVEDA",
+        "domains": ["ayurveda", "traditional_knowledge"],
+        "selected_evidence": [
+            _authoritative_chunk("ayush-1", "AYUSH Related Inventions Guidelines 2025.pdf", ["ayush", "ayurveda", "traditional_knowledge"], "The guideline addresses traditional knowledge in AYUSH inventions.", 0.08),
+            _authoritative_chunk("patent-1", "Patent Act-1970.pdf", ["patents", "traditional_knowledge"], "Traditional knowledge is relevant to patentability under Indian law.", 0.08),
+        ],
+    })
+    assert result["evidence_sufficient"] is True
+    assert result["evidence_sufficiency_diagnostics"]["relevant_evidence_count"] == 2
+
+
+@pytest.mark.parametrize("query", [
+    "What does Section 3(p) of the Patents Act, 1970 state?",
+    "पेटेंट अधिनियम की धारा 3(p) में क्या कहा गया है?",
+    "Patents Act ki Section 3(p) traditional knowledge ke baare mein kya kehti hai?",
+])
+def test_section_3p_queries_require_and_accept_exact_authoritative_match(query):
+    parsed = {"type": "section", "value": "3(p)", "canonical_title": "Patents Act, 1970"}
+    result = EvidenceSufficiencyNode()({
+        "query": query,
+        "query_type": "EXACT_LOOKUP",
+        "query_category": "PATENT",
+        "domains": ["patents", "traditional_knowledge"],
+        "parsed_identifier": parsed,
+        "exact_identifiers": ["Section 3(p)"],
+        "selected_evidence": [_authoritative_chunk("p-3p", "Patent Act-1970.pdf", ["patents", "traditional_knowledge"], "Section 3(p): an invention which is in effect traditional knowledge is not an invention.", 0.9, "3(p)")],
+    })
+    assert result["evidence_sufficient"] is True
+
+
+def test_exact_section_3d_does_not_accept_section_4():
+    result = EvidenceSufficiencyNode()({
+        "query": "What is Section 3(d) of the Patents Act?",
+        "query_type": "EXACT_LOOKUP",
+        "domains": ["patents"],
+        "parsed_identifier": {"type": "section", "value": "3(d)", "canonical_title": "Patents Act, 1970"},
+        "exact_identifiers": ["Section 3(d)"],
+        "selected_evidence": [_authoritative_chunk("p-4", "Patent Act-1970.pdf", ["patents"], "Section 4 concerns atomic energy.", 0.99, "4")],
+    })
+    assert result["evidence_sufficient"] is False
+
+
+def test_fee_refusal_has_structured_reason_without_fee_evidence():
+    result = EvidenceSufficiencyNode()({
+        "query": "What is the current trademark registration fee in India?",
+        "query_type": "CURRENT_FEE_LOOKUP",
+        "domains": ["patents"],
+        "selected_evidence": [_authoritative_chunk("tm-25", "The Trade Marks Act, 1999", ["trademarks", "indian_ip"], "Registration is for ten years and may be renewed.", 0.9, "25")],
+    })
+    assert result["evidence_sufficient"] is False
+    assert result["evidence_sufficiency_diagnostics"]["reason"] == "NO_SUFFICIENT_EVIDENCE"
+
+
+def test_patentability_query_excludes_domain_adjacent_licensing_evidence():
+    result = EvidenceSufficiencyNode()({
+        "query": "Can a classical Ayurvedic formulation described in the Ayurvedic Pharmacopoeia of India be patented as an invention?",
+        "query_type": "AYURVEDA_IP",
+        "domains": ["patents", "ayurveda"],
+        "selected_evidence": [
+            _authoritative_chunk(
+                "license",
+                "Drugs and Cosmetics Act, 1940",
+                ["ayurveda", "regulatory"],
+                "A formulation described in authoritative books may be named on the basis of its ingredients.",
+                0.9,
+                "156",
+            ),
+            _authoritative_chunk(
+                "patentability",
+                "AYUSH Related Inventions Guidelines 2025.pdf",
+                ["ayurveda", "patents", "patent_examination"],
+                "A composition based on known plants may be considered patentable only when the claims satisfy novelty and inventive step requirements.",
+                0.4,
+            ),
+        ],
+    })
+    assert result["evidence_sufficient"] is True
+    assert [chunk["chunk_id"] for chunk in result["selected_evidence"]] == ["patentability"]
 
 
 def test_safe_refusal_node():

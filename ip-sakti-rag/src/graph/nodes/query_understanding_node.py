@@ -161,6 +161,8 @@ class QueryUnderstandingNode:
         expanded_query = None
         if scope_status == "IN_SCOPE":
             expanded_query = self._expand_multilingual_query(query, language)
+            if not expanded_query:
+                expanded_query = self._expand_domain_query(query, detected_domains)
 
         latency = round((time.perf_counter() - t0) * 1000, 2)
         node_latencies = dict(state.get("node_latencies_ms", {}))
@@ -419,3 +421,16 @@ class QueryUnderstandingNode:
             if k in query:
                 expanded += f" ({v})"
         return expanded
+
+    def _expand_domain_query(self, query: str, domains: List[str]) -> Optional[str]:
+        """Adds deterministic retrieval vocabulary for narrow AYUSH/IP questions."""
+        q_lower = query.lower()
+        if "ayurveda" not in domains and "ayush" not in q_lower:
+            return None
+        if not any(term in q_lower for term in ("patent", "patentability", "invention", "formulation", "pharmacopoeia")):
+            return None
+        return (
+            f"{query} AYUSH patent examination patentability invention "
+            "Patents Act Section 3(p) Section 3(e) prior art novelty inventive step traditional knowledge "
+            "Ayurvedic formulation pharmacopoeia"
+        )

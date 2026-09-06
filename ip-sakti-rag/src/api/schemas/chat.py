@@ -50,6 +50,7 @@ class ChatResponse(BaseModel):
     domains: List[str] = Field(default_factory=list, description="List of recognized legal/AYUSH domains")
     citations: List[CitationItem] = Field(default_factory=list, description="Structured citation objects")
     is_refusal: bool = Field(False, description="Whether this response is a safe refusal")
+    refusal_diagnostics: Optional[Dict[str, Any]] = Field(None, description="Structured refusal reason for debugging; populated only for refusals")
     validation: ValidationInfo = Field(..., description="Claim and citation verification summary")
     metadata: QueryMetadata = Field(..., description="Observability and latency metrics")
 
